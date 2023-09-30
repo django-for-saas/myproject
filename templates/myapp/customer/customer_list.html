@@ -1,0 +1,13 @@
+{% extends "myapp/base.html" %}
+
+{% block title %}Customers{% endblock %}
+
+{% block content %}
+    {% if object_list.exists %}
+        <ul>
+        {% for customer in object_list %}
+            <li>{{ customer.name }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}
