@@ -6,14 +6,14 @@ from django.contrib.auth.models import PermissionsMixin
 from django.core.mail import send_mail
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
-
+from django.conf import settings
 from usermodel.managers import UserManager
 
 
 class User(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(
-        db_collation='und-x-icu',
+        db_collation=settings.CI_COLLATION,
         max_length=255,
         unique=True,
         error_messages={

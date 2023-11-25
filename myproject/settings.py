@@ -5,16 +5,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
 DEBUG = env.bool("DJANGO_DEBUG", False)
 
-if DEBUG:
-    ALLOWED_HOSTS = ['*']
-else:
-    ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS')
-SECRET_KEY = env.str('DJANGO_SECRET_KEY')
+ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['*'])
+SECRET_KEY = env.str('DJANGO_SECRET_KEY', default='secret-key')
 DATABASES = {
-    "default": env.db("DATABASE_URL")
+    "default": env.db("DATABASE_URL", default="sqlite:///db.sqlite3")
 }
-DATABASES["default"]["ATOMIC_REQUESTS"] = True
-DATABASES["default"]["CONN_MAX_AGE"] = env.int("CONN_MAX_AGE", default=60)
+if DATABASES["default"]["ENGINE"] == "django.db.backends.postgresql":
+    DATABASES["default"]["ATOMIC_REQUESTS"] = True
+    DATABASES["default"]["CONN_MAX_AGE"] = env.int("CONN_MAX_AGE", default=60)
+    CI_COLLATION = 'und-x-icu'
+elif DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3":
+    CI_COLLATION = 'NOCASE'
+elif DATABASES["default"]["ENGINE"] == "django.db.backends.mysql":
+    CI_COLLATION = 'utf8mb4_unicode_ci'
+else:
+    raise NotImplementedError("Unknown database engine")
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 LOGGING = {
